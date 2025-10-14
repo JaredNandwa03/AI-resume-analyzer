@@ -29,7 +29,7 @@ const auth = () => {
                          <h1>Welcome</h1>
                          <h2>Login to your account</h2>
                      </div>
-                     <div>
+                     <div> 
                          {isLoading ? (
                            <button className="auth-button animate-pulse ">
                              <p>Logging in...</p>
