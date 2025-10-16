@@ -1,0 +1,6 @@
+- [x] Update ResumeCard component to display actual PDF resume in an embedded iframe instead of the converted image thumbnail
+  - [x] Modify destructuring to include resumePath from resume object
+  - [x] Update useEffect to load resumePath, create PDF blob, and set resumeUrl
+  - [x] Replace img element with iframe element for PDF display
+  - [x] Adjust iframe styles to fit card layout (height, object-cover equivalent)
+  - [x] Handle fallback if resumeUrl is not available

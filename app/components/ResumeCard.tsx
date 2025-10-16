@@ -1,36 +1,50 @@
+import {Link} from "react-router";
+import ScoreCircle from "~/components/ScoreCircle";
+import {useEffect, useState} from "react";
+import {usePuterStore} from "~/lib/puter";
+import { resume } from "react-dom/server";
 
-import { resume } from 'react-dom/server';
-import { Link } from 'react-router';
-import ScoreCircle from './ScoreCircle';
+const ResumeCard = ({ resume: { id, companyName, jobTitle, feedback, imagePath, resumePath } }: { resume: Resume }) => {
+    const { fs } = usePuterStore();
+    const [resumeUrl, setResumeUrl] = useState('');
 
-const ResumeCard = ({ resume: { id, companyName, jobTitle, feedback, imagePath } }: { resume: Resume }) => {
-  return (
-    <Link to={`/resume/${id}`} className="resume-card
-                                      animate-in fade-in duration-1000">
-         <div className="resume-card-header">
-         <div className="lflex flex-col gap-2 ">
-            <h2 className="text-2xl font-bold break-words text-blue-800">
-                {companyName}
-            </h2>
-            <h3 className="text-xl font-bold break-words text-blue-800">
-                {jobTitle}
-            </h3>
-         </div>
-         <div className="flex-shrink-0">
-            <ScoreCircle score={feedback.overallScore} />
-         </div>
-        </div>
-        <div className="gradient-border animate-in fade-in duration-1000">
-           <div className="w-full h-full">
-            <img src={imagePath}
-             alt="resume preview"
-             className="w-full h-[350px]
-                       max-sm:h-[250px] object-cover object-top"
-            />
-           </div>
-        </div> 
-    </Link>
-  )
+    useEffect(() => {
+        const loadResume = async () => {
+            const blob = await fs.read(resumePath);
+            if(!blob) return;
+            const pdfBlob = new Blob([blob], { type: 'application/pdf' });
+            let url = URL.createObjectURL(pdfBlob);
+            setResumeUrl(url);
+        }
+
+        loadResume();
+    }, [resumePath]);
+
+    return (
+        <Link to={`/resume/${id}`} className="resume-card animate-in fade-in duration-1000">
+            <div className="resume-card-header">
+                <div className="flex flex-col gap-2">
+                    {companyName && <h2 className="!text-black font-bold break-words">{companyName}</h2>}
+                    {jobTitle && <h3 className="text-lg break-words text-gray-500">{jobTitle}</h3>}
+                    {!companyName && !jobTitle && <h2 className="!text-black font-bold">Resume</h2>}
+                </div>
+                <div className="flex-shrink-0">
+                    <ScoreCircle score={feedback?.overallScore ?? feedback?.overall_rating ?? 0} />
+                </div>
+            </div>
+            {resumeUrl && (
+                <div className="gradient-border animate-in fade-in duration-1000">
+                    <div className="w-full h-full">
+                        <iframe
+                            src={resumeUrl}
+                            className="w-full h-[350px] max-sm:h-[200px] rounded-2xl border-0"
+                            title="resume"
+                        />
+                    </div>
+                </div>
+                )}
+        </Link>
+    )
 }
 
 export default ResumeCard

@@ -15,23 +15,18 @@ interface Resume {
 }
 
 interface Feedback {
-  overallScore: number;
-  ATS: {
+  overallScore?: number;
+  overall_rating?: number;
+  ATS?: {
     score: number;
     tips: {
       type: "good" | "improve";
       tip: string;
     }[];
   };
-  toneAndStyle: {
-    score: number;
-    tips: {
-      type: "good" | "improve";
-      tip: string;
-      explanation: string;
-    }[];
-  };
-  content: {
+  ats_compatibility?: number;
+  ats_issues?: string[];
+  toneAndStyle?: {
     score: number;
     tips: {
       type: "good" | "improve";
@@ -39,7 +34,7 @@ interface Feedback {
       explanation: string;
     }[];
   };
-  structure: {
+  content?: {
     score: number;
     tips: {
       type: "good" | "improve";
@@ -47,7 +42,8 @@ interface Feedback {
       explanation: string;
     }[];
   };
-  skills: {
+  content_score?: number;
+  structure?: {
     score: number;
     tips: {
       type: "good" | "improve";
@@ -55,4 +51,18 @@ interface Feedback {
       explanation: string;
     }[];
   };
+  formatting_score?: number;
+  skills?: {
+    score: number;
+    tips: {
+      type: "good" | "improve";
+      tip: string;
+      explanation: string;
+    }[];
+  };
+  keyword_optimization?: number;
+  strengths?: string[];
+  weaknesses?: string[];
+  specific_improvements?: string[];
+  action_items?: string[];
 }

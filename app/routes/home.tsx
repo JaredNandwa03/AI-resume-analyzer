@@ -1,9 +1,8 @@
 import Navbar from "~/components/Navbar";
 import type { Route } from "./+types/home";
-import { resumes } from "../../constants";
 import ResumeCard from "~/components/ResumeCard";
-import { useLocation, useNavigate } from "react-router";
-import { useEffect } from "react";
+import { Link, useNavigate } from "react-router";
+import { useEffect, useState } from "react";
 import { usePuterStore } from "~/lib/puter";
 
 
@@ -17,14 +16,35 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {  
-  const { auth } = usePuterStore();
+  const { auth, kv } = usePuterStore();
   const navigate = useNavigate();
+  const [resumes, setResumes] = useState<Resume[]>([]);
+  const [loadingResumes, setLoadingResumes] = useState(false);
   
   useEffect(() => {
          if(!auth.isAuthenticated) {
            navigate("/auth?next=/");
          }
        }, [auth.isAuthenticated]);
+
+  useEffect(() => {
+    const loadingResumes = async () => {
+        setLoadingResumes(true);
+        const resumes = (await kv.list("resume:*", true)) as KVItem[]; 
+        const parsedResumes = resumes?.map((resume) => (
+               JSON.parse(resume.value) as Resume));
+    
+        console.log("parsedResumes", parsedResumes);
+    
+        setResumes(parsedResumes || []);
+        setLoadingResumes(false);         
+  }
+  loadingResumes();
+}
+  
+  , []);     
+
+  
 
   return (
     
@@ -33,18 +53,34 @@ export default function Home() {
     <section className="main-section">
         <div className="page-heading py-18">
          <h1>Track your applications and resume ratings</h1>
-         <h2>Resumio is the best ai reviewer in the market. 
-            It helps you track your applications and resume ratings.</h2>
+         {!loadingResumes && resumes.length === 0 ? (
+            <button className="primary-button" onClick={() => navigate("/upload")}>Upload Resume</button>
+         ):(
+            <h2 className="text-blue-800 text-lg">Review your uploaded {resumes.length} resume(s) and go over the feedback gotten again</h2>
+          )};
+         { loadingResumes && ( 
+            <div className="flex flex-col items-center justify-center">
+              <img src="/images/resume-scan-2.gif"className="w-[200px]" />
+            </div> 
+         )};  
+
+         
     
         </div>
   
-        {resumes.length > 0 && (
+        {!loadingResumes && resumes.length > 0 && (
           <div className="resumes-section">
             { resumes.map((resume) => (
               <ResumeCard key={resume.id} resume={resume} />
              ))}
          </div> 
-         )}    
+         )}  
+         {!loadingResumes && resumes?.length === 0 && (
+          <div className="flex flex-col items-center justify-center mt-10">
+            
+          </div>
+         )}
+
       </section>
     </main>
     
